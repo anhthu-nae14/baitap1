@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả tìm kiếm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    {% include "navbar.html" %}
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Kết quả tìm kiếm</h1>
+        <p class="text-center">
+            Tìm kiếm cho từ khóa: <strong>"{{ query }}"</strong>
+        </p>
+
+        {% if products %}
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for product in products %}
+            <div class="col">
+                <div class="card h-100">
+                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="{{ product.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.description }}</p>
+                    </div>
+                    <div class="card-footer">
+                        <p class="mb-1"><strong>Price:</strong> ${{ product.price }}</p>
+                        <p><strong>Stock:</strong> {{ product.stock }}</p>
+                        <a href="/product/{{ product.id }}" class="btn btn-primary w-100">Xem chi tiết</a>
+                        <a href="/cart/add/{{ product.id }}" class="btn btn-success w-100 mt-2">Thêm vào giỏ hàng</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-center text-muted">Không tìm thấy sản phẩm nào phù hợp với từ khóa "{{ query }}".</p>
+        {% endif %}
+    </div>
+</body>
+</html>

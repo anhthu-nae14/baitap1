@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .quantity-input {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .quantity-input input {
+            text-align: center;
+            width: 60px;
+        }
+        .quantity-input button {
+            border: none;
+            background: none;
+        }
+    </style>
+</head>
+<body>
+    {% include "navbar.html" %}
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Your Cart</h1>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>${{ item.product.price }}</td>
+                        <td>
+                            <div class="quantity-input">
+                                <button onclick="updateQuantity('{{ item.id }}', -1)">-</button>
+                                <input type="text" id="quantity-{{ item.id }}" value="{{ item.quantity }}" readonly>
+                                <button onclick="updateQuantity('{{ item.id }}', 1)">+</button>
+                            </div>
+                        </td>
+                        <td>${{ item.product.price * item.quantity }}</td>
+                        <td>
+                            <form action="/cart/remove/{{ item.id }}" method="POST" style="display:inline-block;">
+                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-end">
+            <h4>Total: ${{ total_price }}</h4>
+            <a href="/checkout" class="btn btn-success">Checkout</a>
+        </div>
+    </div>
+
+    <script>
+        function updateQuantity(itemId, change) {
+            const input = document.getElementById(`quantity-${itemId}`);
+            let quantity = parseInt(input.value);
+            quantity += change;
+            if (quantity < 0) {
+                quantity = 0;
+            } else if (quantity > 10) {
+                quantity = 10;
+            }
+            input.value = quantity;
+
+            // Gửi yêu cầu POST để cập nhật số lượng trên server
+            const formData = new FormData();
+            formData.append('quantity', quantity);
+
+            fetch(`/cart/update/${itemId}`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Cart updated!');
+                } else {
+                    console.error('Error updating cart');
+                }
+            });
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
