@@ -1,0 +1,62 @@
+Họ và tên: Phan Anh Thư
+MSSV: 2274802010872
+Bài tập 2: 
+1. Tạo database
+2. Application
+*Yêu cầu: đăng nhập, xem data, nhập mới vào.
+
+Nội dung bài: Xây dựng một database đưa tên, miêu tả, giá tiền và số lượng sản phẩm. 
+Ngoài ra khi insert product thành công, ta load data sẽ cung cấp thông tin có ngày tháng năm cụ thể.
+
+database trong PgAdmin
+tạo một db mới có tên "baitapdbtest", có 6 tables tất cả: categories, oders, orderstatus, productcategories, products,users.
+Sau khi tạo các tables và có các columns thì ta qua phần code db.py, kết nối sql.
+Phần trình bày Sql:
+
+CREATE TABLE Users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE Products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price NUMERIC(10, 2) NOT NULL,
+    stock_quantity INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE Orders (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES Users(id) ON DELETE CASCADE,
+    product_id INT REFERENCES Products(id) ON DELETE CASCADE,
+    quantity INT NOT NULL,
+    total_price NUMERIC(10, 2) NOT NULL,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE OrderStatus (
+    id SERIAL PRIMARY KEY,
+    order_id INT REFERENCES Orders(id) ON DELETE CASCADE,
+    status VARCHAR(50) NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE Categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT
+);
+CREATE TABLE ProductCategories (
+    product_id INT REFERENCES Products(id) ON DELETE CASCADE,
+    category_id INT REFERENCES Categories(id) ON DELETE CASCADE,
+    PRIMARY KEY (product_id, category_id)
+);
+CREATE TABLE audit_log (
+    id SERIAL PRIMARY KEY,
+    action_type VARCHAR(50) NOT NULL,
+    product_id INT,
+    product_name VARCHAR(255),
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    details TEXT
+);
